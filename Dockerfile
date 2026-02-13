@@ -23,7 +23,7 @@ WORKDIR /app
 
 # Copy the virtual environment from the builder
 COPY --from=builder /app/.venv /app/.venv
-COPY --from=builder /app/app /app/app
+COPY --from=builder /app/main.py /app/main.py
 
 # Place the venv on the PATH so 'python' and 'uvicorn' work automatically
 ENV PATH="/app/.venv/bin:$PATH"
@@ -32,4 +32,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8000
 
 # Run the app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
