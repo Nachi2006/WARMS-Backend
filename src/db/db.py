@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 import os
-from ..logger.logger import logger
+from ..utils.logger import logger
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 

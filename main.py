@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session,text
 from src.db.db import getDb, testConnection
 from contextlib import asynccontextmanager
-from src.logger.logger import logger
+from src.utils.logger import logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if not testConnection():
