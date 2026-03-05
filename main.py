@@ -1,24 +1,39 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session,text
-from src.db.db import getDb, testConnection
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from src.db.db import getDb, testConnection, engine, Base
+from src.controllers.userController import router as user_router
 from contextlib import asynccontextmanager
 from src.utils.logger import logger
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if not testConnection():
+    logger.info("Starting up WARMS-Backend...")
+    if testConnection():
+        # Create tables if they don't exist based on your User model
+        Base.metadata.create_all(bind=engine)
+    else:
         logger.error("Could not connect to the database on startup.")
     yield
+    logger.info("Shutting down WARMS-Backend...")
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="WARMS API",
+    lifespan=lifespan
+)
+
+# Registering the User endpoints (signup, login)
+app.include_router(user_router)
 
 @app.get("/")
 async def root():
     return {"message": "Welcome to Warms Backend"}
 
-@app.get("/ping")
+@app.get("/ping", tags=["Health"])
 async def ping(db: Session = Depends(getDb)):
     try:
         db.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
-    except Exception:
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Database connection failed")
