@@ -14,8 +14,30 @@ def create_booking(
     db: Session = Depends(getDb),
     current_user: User = Depends(get_current_user)
 ):
-    # Check current capacity for location and slot
-    occupancy = db.query(func.count(Booking.user_id)).filter(
+    if current_user.id != booking_in.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only create bookings for your own account."
+        )
+    if(current_user.role!='USER'):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only create bookings being a USER. It is not Allowed for ADMIN or RANGER"
+        )
+
+    existing_booking = db.query(Booking).filter(
+        Booking.user_id == current_user.id,
+        Booking.start_time == booking_in.start_time,
+        Booking.status != "cancelled"
+    ).first()
+
+    if existing_booking:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You already have a booking at this time."
+        )
+
+    occupancy = db.query(func.count(Booking.id)).filter(
         Booking.location == booking_in.location,
         Booking.start_time == booking_in.start_time,
         Booking.status != "cancelled"
@@ -26,45 +48,13 @@ def create_booking(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This slot is full. Maximum 30 bookings allowed."
         )
-    if current_user.id != booking_in.user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not allowed to access this user"
-        )
-        
 
-    # Create booking linked to the authenticated user's ID
     new_booking = Booking(
         user_id=current_user.id,
         location=booking_in.location,
         start_time=booking_in.start_time,
         end_time=booking_in.end_time,
         status="pending"
-    )
-
-    db.add(new_booking)
-    db.commit()
-    db.refresh(new_booking)
-    
-    return new_booking
-    current_occupancy = db.query(func.count(Booking.id)).filter(
-        Booking.location == booking_data.location,
-        Booking.start_time == booking_data.start_time,
-        Booking.status != "cancelled"
-    ).scalar()
-
-    if current_occupancy >= 30:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="This time slot is fully booked for the selected location."
-        )
-
-    new_booking = Booking(
-        user_id=booking_data.user_id,
-        location=booking_data.location,
-        start_time=booking_data.start_time,
-        end_time=booking_data.end_time,
-        status=booking_data.status
     )
 
     db.add(new_booking)

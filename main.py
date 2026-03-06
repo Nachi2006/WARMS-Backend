@@ -6,10 +6,14 @@ from src.controllers.authController import router as auth_router
 from src.controllers.userController import router as user_router
 from contextlib import asynccontextmanager
 from src.utils.logger import logger
+from src.models.userModel import User
+from src.models.bookingModel import Booking
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up WARMS-Backend...")
+    logger.info("Starting up WARMS-Backend...")
+    logger.info(f"Registered tables: {Base.metadata.tables.keys()}")
     if testConnection():
         # Create tables if they don't exist based on your User model
         Base.metadata.create_all(bind=engine)
