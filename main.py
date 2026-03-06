@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from src.db.db import getDb, testConnection, engine, Base
-from src.controllers.userController import router as user_router
+from src.controllers.authController import router as user_router
 from contextlib import asynccontextmanager
 from src.utils.logger import logger
 
