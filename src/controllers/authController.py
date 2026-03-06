@@ -1,6 +1,8 @@
+import os
+from jose import JWTError, jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from ..utils.logger import logger
 from src.db.db import getDb
 from src.models.userModel import User  # Ensure you have a User model defined
@@ -8,11 +10,10 @@ from src.schemas.userSchema import UserCreate, UserResponse, Token, UserLogin
 from src.auth.auth import (
     get_password_hash, 
     verify_password, 
-    create_access_token, 
-    UserRole
+    create_access_token
 )
-
-router = APIRouter(prefix="/users", tags=["Users"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(user_in: UserCreate, db: Session = Depends(getDb)):
@@ -47,15 +48,33 @@ def login(login_data: UserLogin, db: Session = Depends(getDb)):
             detail="Incorrect email or password",
         )
 
-    # 2. Generate token with RBAC role
+    # 2. Generate token
     access_token = create_access_token(
-        data={"sub": user.email}, 
-        role=user.role
+        data={"sub": user.email}
     )
 
     return {
         "access_token": access_token, 
-        "token_type": "bearer",
-        "role": user.role
+        "token_type": "bearer"
     }
     
+SECRET_KEY=os.getenv("SECRET_KEY")
+ALGORITHM=os.getenv("ALGORITHM")
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(getDb)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+        
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise credentials_exception
+    return user

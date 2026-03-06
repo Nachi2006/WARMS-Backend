@@ -2,7 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from src.db.db import getDb, testConnection, engine, Base
-from src.controllers.authController import router as user_router
+from src.controllers.authController import router as auth_router
+from src.controllers.userController import router as user_router
 from contextlib import asynccontextmanager
 from src.utils.logger import logger
 
@@ -23,8 +24,8 @@ app = FastAPI(
 )
 
 # Registering the User endpoints (signup, login)
+app.include_router(auth_router)
 app.include_router(user_router)
-
 @app.get("/")
 async def root():
     return {"message": "Welcome to Warms Backend"}

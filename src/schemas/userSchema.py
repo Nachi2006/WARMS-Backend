@@ -1,5 +1,9 @@
 from pydantic import BaseModel, EmailStr, Field
-from src.auth.auth import UserRole
+from enum import Enum
+class UserRole(str, Enum):
+    ADMIN = "admin"
+    RANGER = "ranger"
+    USER = "user"
 
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
@@ -19,7 +23,6 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-    role: str
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
