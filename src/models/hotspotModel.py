@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from db.db import Base
+from src.db.db import Base
 
 class AnimalHotspot(Base):
     __tablename__ = "animal_hotspots"

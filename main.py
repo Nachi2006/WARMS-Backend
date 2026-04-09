@@ -5,28 +5,28 @@ from sqlalchemy import text
 from dotenv import load_dotenv
 
 load_dotenv()
-from db.db import getDb, testConnection, engine, Base
-from utils.logger import logger
+from src.db.db import getDb, testConnection, engine, Base
+from src.utils.logger import logger
 
-from models.userModel import User
-from models.bookingModel import Booking
-from models.auditLogModel import AuditLog
-from models.hotspotModel import AnimalHotspot
-from models.rangerModels import SightingLog, PatrolRoute, Incident, SosAlert
-from models.complaintModel import Complaint
-from models.inventoryModel import InventoryItem
-from models.announcementModel import Announcement
+from src.models.userModel import User
+from src.models.bookingModel import Booking
+from src.models.auditLogModel import AuditLog
+from src.models.hotspotModel import AnimalHotspot
+from src.models.rangerModels import SightingLog, PatrolRoute, Incident, SosAlert
+from src.models.complaintModel import Complaint
+from src.models.inventoryModel import InventoryItem
+from src.models.announcementModel import Announcement
 
-from controllers.authController import router as auth_router
-from controllers.userController import router as user_router
-from controllers.adminController import router as admin_router
-from controllers.geospatialController import router as geo_router
-from controllers.speciesController import router as species_router
-from controllers.rangerController import router as ranger_router
-from controllers.wsController import router as ws_router
-from controllers.complaintController import router as complaint_router
-from controllers.inventoryController import router as inventory_router
-from controllers.announcementController import router as announcement_router
+from src.controllers.authController import router as auth_router
+from src.controllers.userController import router as user_router
+from src.controllers.adminController import router as admin_router
+from src.controllers.geospatialController import router as geo_router
+from src.controllers.speciesController import router as species_router
+from src.controllers.rangerController import router as ranger_router
+from src.controllers.wsController import router as ws_router
+from src.controllers.complaintController import router as complaint_router
+from src.controllers.inventoryController import router as inventory_router
+from src.controllers.announcementController import router as announcement_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

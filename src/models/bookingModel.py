@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, Enum as SQLEnum, ForeignKey
 from sqlalchemy.sql import func
-from db.db import Base
-from schemas.bookingSchema import BookingStatus
+from src.db.db import Base
+from src.schemas.bookingSchema import BookingStatus
 from sqlalchemy.orm import relationship
 
 class Booking(Base):

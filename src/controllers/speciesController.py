@@ -1,8 +1,9 @@
 import os
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from auth.auth import get_current_user_token
-
+from src.auth.auth import get_current_user_token
+from dotenv import load_dotenv
+load_dotenv()
 router = APIRouter(prefix="/species", tags=["Species AI"])
 
 _model = None
