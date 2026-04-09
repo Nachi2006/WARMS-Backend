@@ -102,3 +102,13 @@ def login(login_data: UserLogin, request: Request, db: Session = Depends(getDb))
 
     access_token = create_access_token(data={"sub": user.email, "role": user.role.value})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me", response_model=UserResponse)
+def get_me(
+    token_data: dict = Depends(get_current_user_token),
+    db: Session = Depends(getDb),
+):
+    user = db.query(User).filter(User.email == token_data["email"]).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return user
