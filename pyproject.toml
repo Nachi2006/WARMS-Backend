@@ -3,7 +3,7 @@ name = "warms-backend"
 version = "0.1.0"
 description = "Wildlife Administration and Reserve Management System Backend"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "alembic>=1.18.4",
     "argon2-cffi>=23.1.0",
@@ -14,6 +14,7 @@ dependencies = [
     "fastapi>=0.129.0",
     "geoalchemy2>=0.15.0",
     "logging>=0.4.9.6",
+    "ml-dtypes>=0.5.0",
     "passlib>=1.7.4",
     "pillow>=10.0.0",
     "psycopg2>=2.9.11",

@@ -3,6 +3,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from src.auth.auth import get_current_user_token
 from dotenv import load_dotenv
+
 load_dotenv()
 router = APIRouter(prefix="/species", tags=["Species AI"])
 
@@ -13,7 +14,7 @@ def _load_model():
     if _model is None:
         try:
             from speciesnet import SpeciesNet
-            _model = SpeciesNet()
+            _model = SpeciesNet(model_name="kaggle:google/speciesnet/pyTorch/v4.0.2a")
         except Exception as e:
             raise RuntimeError(f"Failed to load SpeciesNet model: {e}")
     return _model
@@ -21,14 +22,22 @@ def _load_model():
 async def _run_inference(image_bytes: bytes) -> dict:
     import tempfile
 
+    model = _load_model()
+
     def _infer():
-        model = _load_model()
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
             tmp.write(image_bytes)
             tmp_path = tmp.name
         try:
-            result = model.predict(tmp_path)
-            return result
+            predictions_dict = model.predict(filepaths=[tmp_path])
+            
+            if isinstance(predictions_dict, list):
+                return predictions_dict[0] if predictions_dict else {}
+                
+            predictions_list = predictions_dict.get("predictions", [])
+            if predictions_list:
+                return predictions_list[0]
+            return {}
         finally:
             try:
                 os.unlink(tmp_path)
@@ -37,7 +46,7 @@ async def _run_inference(image_bytes: bytes) -> dict:
 
     return await asyncio.wait_for(
         asyncio.to_thread(_infer),
-        timeout=10.0
+        timeout=30.0
     )
 
 @router.post("/identify-species", tags=["Species AI"])
@@ -64,7 +73,7 @@ async def identify_species(
     except asyncio.TimeoutError:
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            detail="Species identification timed out after 10 seconds"
+            detail="Species identification timed out after 30 seconds"
         )
     except RuntimeError as e:
         raise HTTPException(
@@ -77,17 +86,14 @@ async def identify_species(
             detail=f"Inference failed: {str(e)}"
         )
 
-    if isinstance(result, dict):
-        species = result.get("species") or result.get("label") or result.get("class", "Unknown")
-        confidence = result.get("confidence") or result.get("score", 0.0)
-    elif isinstance(result, (list, tuple)) and len(result) >= 2:
-        species, confidence = str(result[0]), float(result[1])
-    else:
-        species = str(result)
-        confidence = 0.0
+    species_raw = result.get("prediction", "Unknown")
+    species = species_raw.split(";")[-1] if ";" in species_raw else species_raw
+    
+    confidence = result.get("prediction_score", 0.0)
 
     return {
-        "species": species,
+        "species": species.capitalize(),
         "confidence": round(float(confidence), 4),
-        "filename": image.filename
+        "filename": image.filename,
+        
     }
