@@ -10,7 +10,7 @@ class BookingStatus(str, Enum):
     cancelled = "cancelled"
 
 class BookingBase(BaseModel):
-    user_id:int
+    user_id: int
     location: str
     start_time: datetime
     end_time: datetime
@@ -24,5 +24,6 @@ class BookingResponse(BookingBase):
 
     id: int
     user_id: int
+    qr_code_data: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None

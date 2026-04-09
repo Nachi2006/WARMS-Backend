@@ -1,5 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field
 from enum import Enum
+from typing import Optional
+from datetime import datetime
+
 class UserRole(str, Enum):
     ADMIN = "admin"
     RANGER = "ranger"
@@ -16,6 +19,8 @@ class UserResponse(BaseModel):
     username: str
     email: EmailStr
     role: UserRole
+    is_active: bool
+    is_locked: bool
 
     class Config:
         from_attributes = True
@@ -23,6 +28,7 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str

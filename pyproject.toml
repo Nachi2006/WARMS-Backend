@@ -1,23 +1,31 @@
 [project]
 name = "warms-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Wildlife Administration and Reserve Management System Backend"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.4",
-    "bcrypt<=3.2.0",
+    "argon2-cffi>=23.1.0",
+    "bcrypt>=5.0.0",
+    "cryptography>=42.0.0",
     "databases[postgresql]>=0.9.0",
     "dotenv>=0.9.9",
     "fastapi>=0.129.0",
+    "geoalchemy2>=0.15.0",
     "logging>=0.4.9.6",
     "passlib>=1.7.4",
+    "pillow>=10.0.0",
     "psycopg2>=2.9.11",
     "psycopg2-binary>=2.9.11",
     "pydantic[email]>=2.12.5",
     "python-dotenv>=1.2.1",
     "python-jose>=3.5.0",
     "python-multipart>=0.0.22",
+    "qrcode[pil]>=7.4.2",
+    "shapely>=2.0.0",
+    "speciesnet>=5.0.3",
     "sqlalchemy>=2.0.46",
     "uvicorn>=0.40.0",
+    "websockets>=12.0",
 ]
